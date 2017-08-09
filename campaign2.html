@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+
+    <style>
+      body {background-color: #FFFFFF}
+    </style>
+
+    <script src="assets/js/json-sans-eval.js"></script>
+    <script src="assets/js/css-browser-selector.js"></script>
+    <script src="assets/js/game-of-life-v3.1.1.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css" />
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+
+    <title>Conway's Game of Life - Javascript/Canvas Implementation</title>
+
+
+     <meta charset='utf-8'>
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+     <link rel="stylesheet" href="assets/css/style.css">
+     <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+  </head>
+  
+<body>
+
+    <ul class="navigation" style = "margin-left: 0px;">
+    <li class="nav-item"><a href="https://github.com/Sybil-Li/game-of-life" target="_blank">Github</a></li>
+    <li class="nav-item"><a href="ZenMode.html">Zen Mode</a></li>
+    <li class="nav-item"><a href="#">Campaign Mode</a></li>
+    <li class="nav-item"><a href="ArcadeMode.html">Arcade Mode</a></li>
+    <li class="nav-item"><a href="#popup1">Settings</a></li>                     
+    </ul>
+
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger"></label>
+
+<div class="site-wrap">
+    
+  <div id="popup1" class="overlay">
+    <div class="popup">
+      <h2>Change Color</h2>
+      <a class="close" href="#">×</a>
+      <div class="content">
+        <h4><a href="#">Color Scheme</a></h4>
+        <select id = "colorscheme" style="width: 150px">
+          <option>Default</option>
+          <option>Bright</option>
+          <option>Pastel</option>
+        </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <input type = "button" id="buttonSchemeConfirm" value="Done" href="#" style="width: 100px">
+        <p></p>
+
+        
+        
+        <h4>Customize</h4>
+          <span>
+            <p>Enemy Cell Color &nbsp;&nbsp;
+              <input type = "color" id = "enemycolor" value = "#0000ff">
+            </p>
+          </span>
+          <span>
+            <p>Your Cell Color &nbsp;&nbsp;
+              <input type = "color" id = "playercolor" value = "#ff0000">
+            </p>
+          </span> 
+           <p align = "right"><input type="button" id="buttonCustomize" value="Done" href="#" style="width: 100px"><p>
+          
+      </div>
+    </div>
+  </div>
+
+  <div id="popup2" class="overlay">
+    <div class="popup">
+      <p></p>
+      <p></p>
+      <center><h2>You Win!</h2><center>
+      <a class="close" href="#">×</a>
+      <div class="content">
+        <p></p>
+        <center>
+          <div><a href="campaign2.html"><input id="buttonLevel" class = "btn" style="width: 170px" type="button" value="Next Level"/></div>
+        </center>
+        <p></p> 
+      </div>
+    </div>
+  </div>
+
+  <div id="popup3" class="overlay">
+    <div class="popup" style="width: 600px">
+      <p></p>
+      <p></p>
+      <center><h2>How to Play</h2><center>
+      <a class="close" href="#">×</a>
+      <div class="content">
+        <p></p>
+        <p>You will play through 5 different levels so that player can play against increasing difficulty levels. You will start with a very small population (12 cells) compared to a much larger enemy population, and then be able to add more objects as they earn points. To prevent games from becoming stagnant, the computer will have essentially an auto-virus that is put into effect every 20 turns. When you beat the current level, you will be taken to the next level. Your progress will be automatically saved and you can come back later if you don't finish all the levels in one go.</p>
+        <p></p> 
+      </div>
+    </div>
+  </div>
+
+  <div id="popup4" class="overlay">
+    <div class="popup" style="width: 600px">
+      <p></p>
+      <p></p>
+      <center><h2>Still Life Examples</h2><center>
+      <a class="close" href="#">×</a>
+      <div class="content">
+        <img src="http://mathworld.wolfram.com/images/eps-gif/StillLifes_1000.gif">
+      </div>
+    </div>
+  </div>
+
+  <div id="popup5" class="overlay">
+    <div class="popup" style="width: 600px">
+      <p></p>
+      <p></p>
+      <center><h2>Glider Examples</h2><center>
+      <a class="close" href="#">×</a>
+      <div class="content">
+        <img src="http://lib.znate.ru/pars_docs/refs/56/55787/55787_html_1a762787.png">
+      </div>
+    </div>
+  </div>
+
+
+  <!-- from foundation -->
+  
+  <script src="assets/js/foundation.min.js"></script>
+  <script>
+    $(document).foundation();
+  </script>
+
+  <nav class="top-bar" data-topbar>
+    <ul class="title-area no-bullet"></ul>
+
+      <h1>
+        <a href="#">
+          Conway's Game of Life
+        </a>
+      </h1>
+
+  </nav>
+
+
+
+  <div class="row" style="margin-left: 30px margin-right: 0px">
+    <div class="large-12 columns">
+ 
+      <div class="row">
+        <div class="large-12 columns">
+          <div class="row">
+
+               
+            <div class="large-8 small-6 columns">
+
+                <!-- <div class="cl">&nbsp;</div> -->
+                <div class="box">
+                  <div class="subtitle">Running Information</div>
+                  <p class="info"><abbr title="Current Generation">Generation</abbr>: <span id="generation"></span> | <abbr title="Number of live cells">Live cells</abbr>: <span id="livecells"></span> | <abbr title="Execution times: Algorithm / Canvas (Algorithm / Canvas Averages)">Step time</abbr>: <span id="steptime"></span> ms </p>
+
+                  <center><canvas id="canvas" width="500" height="500"></canvas><center>
+
+                  <span id="hint">Hint: hit the <strong>NextStep</strong> button!</span>
+                </div>
+
+                <div class="box controls">
+                  <div class="subtitle">Controls</div>
+                  <form action="">
+                    <input type="button" value="NextStep" id="buttonStep" title="Key: S" />
+                    <input type="button" value="Restart" id="buttonRestart" />
+                    <input style="visibility:hidden" type="button" value="Clear" id="buttonClear" title="Key: C" />
+                    <input style="visibility:hidden" type="button" value="Run" id="buttonRun" title="Key: R" />
+                    <input style="visibility:hidden" type="button" value="Export" id="buttonExport" />
+                    <span id="exportUrl"> | <a id="exportUrlLink">Link</a> | <a id="exportTinyUrlLink" title="Tiny URL">Create micro URL</a></span>
+                  </form>
+                  <!--<p><a href = "#popup2">autowin</a></p>-->
+                </div>
+
+                <div class="box patterns">
+                  <div class="subtitle">What is this?</div>
+                  <style="font: 10px">
+                    This page contains a Javascript implementation of the well know John Conway's Game of Life. It uses the <a href="http://dotat.at/prog/life/life.html" title="Tony Finch's List Life Algorithm">List Life</a> algorithm (by Tony Finch) and a Canvas interface for drawing. This version was originally created by pmav and hosted <a href="http://pmav.eu/stuff/javascript-game-of-life-v3.1.1/" title="Original Version of JS canvas Game of Life">here</a>.
+                    <p></p>
+                    This is a computer versus human player version multiplayer Conway's Game of Life created by Group Blink Dagger. The main idea of the game is that two species of the lives are competing for domination of the same land. The computer is the original species on the land, and the player, starting with a limited number of population must play strategically, accumulating resources and population to beat the original species.
+                    <p></p>
+                  
+                  
+
+
+                  <div class="subtitle">License</div>
+                  This work is licenced under a <a rel="license" href="LICENSE.md">MIT license</a> (except any 3rd party code).
+                  <p></p>
+
+                  <div class="subtitle">3rd Party</div>
+                  Powered by <a href="http://rafael.adm.br/css_browser_selector" title="CSS Browser Selector">CSS Browser Selector</a> and <a href="http://code.google.com/p/json-sans-eval/" title="JSON Sans Eval">JSON Sans Eval</a>.
+                  <p>
+
+                  <div class="cl">&nbsp;</div>
+                </div>
+
+                <div class="box patterns">
+                  <div class="subtitle">Links</div>
+                  <ul>
+                      <li><a href="http://dotat.at/prog/life/life.html" title="Tony Finch's List Life Algorithm">Tony Finch's List Life Algorithm</a></li>
+                      <li><a href="http://golly.sourceforge.net" title="Golly - Application for exploring Conway's Game of Life">Golly - Application for exploring Conway's Game of Life</a></li>
+                      <li><a href="http://en.wikipedia.org/wiki/Conway's_Game_of_Life" title="Conway's Game of Life @ Wikipedia">Conway's Game of Life @ Wikipedia</a></li>
+                      <li><a href="http://fano.ics.uci.edu/ca/rules/b3s23/" title="Life (B3/S23) @ Fano">Life (B3/S23) @ Fano</a></li>
+                      <li><a href="http://www.radicaleye.com/lifepage/" title="Life Page by Paul Callahan">Life Page by Paul Callahan</a></li>
+                      <li><a href="http://entropymine.com/jason/life/status.html" title="Game of Life Status page">Game of Life Status page</a></li>
+                      <li><a href="http://www.argentum.freeserve.co.uk/lex_home.htm" title="Life Lexicon Home Page">Life Lexicon Home Page</a></li>
+                  </ul>
+                  <div class="cl">&nbsp;</div>
+                </div>
+              </div>
+
+            <div class="large-4 small-6 columns">
+
+              <h4>Current Points</h4><hr>
+              <div class="row">
+                <div class="large-9 columns">
+                  <h5><span id="pointMessages">Current Points: 12</span></h5>
+                  <h6 class="subheader show-for-small">On Campaign Mode Level <span id="levelMessages">2</span></h6>
+                  <p></p>
+
+                  <h5><span id="probabilityMessage">Probability: + 0 %</span></h5>
+                </div>
+              </div><hr>             
+ 
+              <h4>Object Selection</h4><hr>
+ 
+              <div class="row">
+                <div class="large-9 columns">
+                  <h5>Still Lives</h5>
+                  <h6 class="subheader show-for-small">Still lives do not change states unless disturbed. They are the best way to earn points.</h6>
+                  <u><h6><class="subheader"><a href="#popup4">View Examples</a></h6></u>
+                </div>
+              </div><hr>
+
+                <div class="row">
+                  <div class="large-9 columns">
+                    <h5>Glider Objects</h5>
+                     <h6 class="subheader show-for-small">Glider Objects moves through space in one direction. Their sizes and shape change periodically. They are useful if you want to attach enemy territory.</h6>
+                     <h6><class="subheader"><a href="#popup5"><u>View Examples</a></u></h6>
+                  </div>
+                </div><hr>
+ 
+                <div class="row">
+                  <div class="large-9 columns">
+                    <h5>Special Objects</h5>
+                    <h5>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "http://static1.squarespace.com/static/50113811e4b0e82fefb71a08/t/51b9b85be4b034d82d53d1cb/1371125873142/tumblr_miybosjg0b1rvoa93o1_500.gif" style="width:45px;height:50px"></h5>
+                    <h5><input type = "button" id="buttonVirus" value="Use Virus" style="width: 100px"></h5>
+                    <span id="virusAlert" style="color: #FF0000"></span>
+                    <h6 class="subheader show-for-small">The Virus gives you a 2.5% cell born chance boost and decrease the probability that enemy cells are born.</h6>
+                  </div>
+                </div><hr>
+ 
+                <div class="row">
+                  <div class="large-9 columns">
+                    <h5 class="subheader"><a href="#popup3">How to Play</a></h5>
+                    <h6 class="subheader show-for-small">Click Above</h6>
+                  </div>
+                </div><hr>
+              </div>
+          </div>
+        </div>
+      </div>
+ 
+
+      <footer class="row">
+        <div class="large-12 columns"><hr>
+            <div class="row">
+ 
+              <div class="large-6 columns">
+                  <p>© Copyright Group Blink Dagger | verison 1.0 | 2015</p>
+              </div>
+ 
+            </div>
+        </div>
+      </footer>
+
+      </div>
+    </div>
+</div>
+
+<div style="visibility: hidden">
+  <div class="box layout">
+    <div class="subtitle">Layout</div>
+    <form>
+     <input type="button" id="buttonTrail" value="Trail"/>
+     <input type="button" id="buttonGrid" value="Grid" />
+     <input type="button" id="buttonColors" value="Colors" />
+     <span id="layoutMessages"></span>
+    </form>
+  </div> 
+
+  <div class="box patterns">
+    <div class="subtitle">Patterns</div>
+      <div class="button"><a href="?autoplay=0&amp;trail=0&amp;grid=1&amp;colors=1&amp;zoom=1&amp;s=%5B{%228%22:%5B60,61,98,103,109,115%5D},{%229%22:%5B60,61,77,78,97,99,102,104,108,110,114,116%5D},{%2210%22:%5B76,79,98,103,105,109,111,115,117%5D},{%2211%22:%5B76,79,104,110,112,116,118%5D},{%2212%22:%5B60,61,63,64,77,78,111,117%5D},{%2213%22:%5B60,61,63,64%5D},{%2219%22:%5B76,77,79,97,98,102,103,108,109,114,115%5D},{%2220%22:%5B76,78,79,97,99,102,104,108,110,114,116%5D},{%2221%22:%5B98,103,105,109,111,115,117%5D},{%2222%22:%5B104,110,112,116,118%5D},{%2223%22:%5B61,111,117%5D},{%2224%22:%5B60,62,76,77%5D},{%2225%22:%5B60,62,75,78%5D},{%2226%22:%5B61,76,79%5D},{%2227%22:%5B77,78,96,97,102,103,109,110,115,116%5D},{%2228%22:%5B96,98,102,104,109,111,115,117%5D},{%2229%22:%5B61,65,97,98,103,105,110,112,116,118%5D},{%2230%22:%5B60,62,64,66,104,105,111,113,117,119%5D},{%2231%22:%5B60,62,64,66,75,76,112,113,118,120%5D},{%2232%22:%5B61,65,75,78,119,120%5D},{%2233%22:%5B77,78%5D},{%2237%22:%5B78,79%5D},{%2238%22:%5B77,79%5D},{%2239%22:%5B77%5D},{%2240%22:%5B60,61,63,64,75,77%5D},{%2241%22:%5B61,63,75,76%5D},{%2242%22:%5B61,63%5D},{%2243%22:%5B60,61,63,64,114%5D},{%2244%22:%5B78,79,84,85,92,93,95,113,115%5D},{%2245%22:%5B79,84,86,92,93,95,96,97,104,112,115%5D},{%2246%22:%5B78,86,98,103,105,111,113,114%5D},{%2247%22:%5B75,77,86,87,92,93,95,96,97,102,105,110,112%5D},{%2248%22:%5B75,76,93,95,103,104,109,112%5D},{%2249%22:%5B93,95,110,111%5D},{%2250%22:%5B94%5D}%5D" title="Still Life Patterns">Still Life</a></div>
+      <div class="button"><a href="" title="">Oscillators</a></div>
+      <div class="button"><a href="?autoplay=0&amp;trail=0&amp;grid=1&amp;colors=1&amp;zoom=1&amp;s=%5B{%229%22:%5B44%5D},{%2210%22:%5B42,44%5D},{%2211%22:%5B32,33,40,41,54,55%5D},{%2212%22:%5B31,35,40,41,54,55%5D},{%2213%22:%5B20,21,30,36,40,41%5D},{%2214%22:%5B20,21,30,34,36,37,42,44%5D},{%2215%22:%5B30,36,44%5D},{%2216%22:%5B31,35%5D},{%2217%22:%5B32,33%5D}%5D" title="Gosper Glider Gun">Gosper Glider Gun</a></div>
+      <div class="button"><a href="" title="">Guns</a></div>
+      <div class="button"><a href="?autoplay=0&amp;trail=0&amp;grid=1&amp;colors=1&amp;zoom=1&amp;s=%5B{%2239%22:%5B110%5D},{%2240%22:%5B112%5D},{%2241%22:%5B109,110,113,114,115%5D}%5D" title="Acorn Patter">Acorn</a></div>
+      <div class="button"><a href="?autoplay=0&amp;trail=0&amp;grid=1&amp;colors=1&amp;zoom=1&amp;s=random" title="Random Pattern">Random</a></div>
+      <div class="cl">&nbsp;</div>
+    </div>
+
+    <div class="box patterns">
+      
+      <div class="cl">&nbsp;</div>                   
+
+    </div>
+</div>
+
+  </body>
+</html>
